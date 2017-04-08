@@ -19,17 +19,34 @@ class App extends Component {
         this.setState({searchHints: updatedSearchHints});
     };
 
+    onSearchStateChange = (jobs, jobsFound) => {
+        this.setState({jobs, jobsFound})
+    };
+
+    onHintsStateChange = (searchHints) => {
+        this.setState({searchHints})
+    };
+
+    onSearchKeywordChange = (keyword) => {
+        this.searchKeyword = keyword;
+    };
+
     render() {
         const { jobs, jobsFound, searchHints} = this.state;
         return (
-            <div className="App">
+            <div className="app">
                 <Hints
                     searchHints={searchHints}
                     filter={true}
                     searchKeyword={this.searchKeyword}
                     onHintStateChange={this.onHintStateChange}
                 />
-                <Search data={jobs}/>
+                <Search
+                    data={jobsData}
+                    onSearchStateChange={this.onSearchStateChange}
+                    onHintsStateChange={this.onHintsStateChange}
+                    onSearchKeywordChange={this.onSearchKeywordChange}
+                />
                 <Hints
                     searchHints={searchHints}
                     searchKeyword={this.searchKeyword}

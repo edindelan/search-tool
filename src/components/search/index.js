@@ -8,13 +8,22 @@ export default class Search extends Component {
         })
     };
 
+    createHint = (type, keyword) => {
+        return {
+            type,
+            keyword,
+            selected: false,
+            id: uniqueId()
+        }
+    };
+
     findHints = (keyword) => {
-        const {data} = this.props;
+        const {data, onHintsStateChange} = this.props;
         let hints = [];
         data.forEach(job => {
             const words = job.title.split(' ');
-            const locHint = {type: 'loc', keyword: job.location, selected: false, id: uniqueId()};
-            const teamHint = {type: 'team', keyword: job.area, selected: false, id: uniqueId()};
+            const locHint = this.createHint('loc', job.location);
+            const teamHint = this.createHint('team', job.area);
             if(keyword && hints.length < 10) {
                 if(job.location.toLowerCase().includes(keyword) && !this.isInHints(hints, locHint).length){
                     hints.push(locHint);
@@ -25,7 +34,7 @@ export default class Search extends Component {
                 }
 
                 words.forEach(word => {
-                    const wordHint = {type: 'word', keyword: word, selected: false, id: uniqueId()};
+                    const wordHint = this.createHint('word', word);
                     if(word.toLowerCase().includes(keyword) && !this.isInHints(hints, wordHint).length) {
                         hints.push(wordHint);
                     }
@@ -39,7 +48,7 @@ export default class Search extends Component {
             return (nameA === nameB) ? 0 : (nameA < nameB) ? -1 : 1;
         });
 
-        this.setState({searchHints: hints});
+        onHintsStateChange(hints);
     };
 
     onType = () => {
@@ -51,22 +60,22 @@ export default class Search extends Component {
     };
 
     makeSearch = () => {
+        const {onSearchKeywordChange} = this.props;
         this.searchKeyword = this.searchInput.value.toLowerCase();
         this.search(this.searchKeyword);
+        onSearchKeywordChange(this.searchKeyword);
     };
 
     search = (keyword) => {
-        const {data} = this.props;
+        const {data, onSearchStateChange} = this.props;
         this.findHints(keyword);
         const filtered = data.filter(job => {
             return job.title.toLowerCase().includes(keyword)
         });
 
-        if(filtered.length) {
-            this.setState({jobs: filtered, jobsFound: filtered.length});
-        } else {
-            this.setState({jobs: [], jobsFound: 0});
-        }
+        filtered.length
+            ? onSearchStateChange(filtered, filtered.length)
+            : onSearchStateChange(null, 0);
     };
 
     render() {
