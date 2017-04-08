@@ -6,7 +6,8 @@ class App extends Component {
     state = {
         jobs: jobsData,
         jobsFound: jobsData.length,
-        searchHints: []
+        searchHints: [],
+        searchKeyword: ""
     };
 
     type = () => {
@@ -18,24 +19,48 @@ class App extends Component {
     };
 
     makeSearch = () => {
-        const keyword = this.searchInput.value.toLowerCase();
-        this.search(keyword);
+        this.setState({searchKeyword: this.searchInput.value.toLowerCase()});
+        const { searchKeyword } = this.state;
+        this.search(searchKeyword);
     };
 
+    isInHints = (hints, word) => {
+        return hints.filter(hint => {
+            return hint.keyword === word.keyword && hint.type === word.type;
+        })
+    }
+
     findHints = (keyword) => {
-        console.log(keyword);
         let hints = [];
         jobsData.forEach(job => {
-            const tmp = job.title.split(' ');
-            tmp.forEach(word => {
-                if(keyword && hints.length < 10 && word.toLowerCase().includes(keyword) && !hints.includes(word)) {
-                    hints.push(word);
+            const words = job.title.split(' ');
+            const locHint = {type: 'loc', keyword: job.location};
+            const teamHint = {type: 'team', keyword: job.area};
+            if(keyword && hints.length < 10) {
+                if(job.location.toLowerCase().includes(keyword) && !this.isInHints(hints, locHint).length){
+                    hints.push(locHint);
                 }
-            });
 
+                if(job.area.toLowerCase().includes(keyword) && !this.isInHints(hints, teamHint).length){
+                    hints.push(teamHint);
+                }
+
+                words.forEach(word => {
+                    const wordHint = {type: 'word', keyword: word};
+                    if(word.toLowerCase().includes(keyword) && !this.isInHints(hints, wordHint).length) {
+                        hints.push(wordHint);
+                    }
+                });
+            }
         });
 
-        this.setState({searchHints: hints})
+        hints.sort((a, b) => {
+            const nameA = a.type.toUpperCase(); // ignore upper and lowercase
+            const nameB = b.type.toUpperCase(); // ignore upper and lowercase
+            return (nameA === nameB) ? 0 : (nameA < nameB) ? -1 : 1;
+        });
+
+        this.setState({searchHints: hints});
     };
 
     search = (keyword) => {
@@ -53,12 +78,15 @@ class App extends Component {
     };
 
     render() {
-        const { jobs, jobsFound, searchHints } = this.state;
+        const { jobs, jobsFound, searchHints, searchKeyword} = this.state;
+        const pattern = new RegExp(searchKeyword, 'gi');
+        console.log(searchHints);
         return (
             <div className="App">
                 <input ref={(input) => this.searchInput = input } onKeyPress={this.type} onChange={this.change} type="text"/>
                 {searchHints.map((hint, i) => {
-                        return <div key={i}>{hint}</div>
+                        {/*return <div key={i}>{hint.type}: {hint.keyword.replace(pattern,"<strong>" + searchKeyword + "</strong>")}</div>*/}
+                        return <div key={i}>{hint.type}: {hint.keyword}</div>
                 })}
 
                 <h1>{jobsFound}</h1>
