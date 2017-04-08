@@ -6,22 +6,23 @@ class App extends Component {
     state = {
         jobs: jobsData,
         jobsFound: jobsData.length,
-        searchHints: [],
-        searchKeyword: ""
+        searchHints: []
     };
+
+    searchKeyword = "";
 
     type = () => {
         this.makeSearch();
     };
 
     change = () => {
+        console.log(this.state);
         this.makeSearch();
     };
 
     makeSearch = () => {
-        this.setState({searchKeyword: this.searchInput.value.toLowerCase()});
-        const { searchKeyword } = this.state;
-        this.search(searchKeyword);
+        this.searchKeyword = this.searchInput.value.toLowerCase();
+        this.search(this.searchKeyword);
     };
 
     isInHints = (hints, word) => {
@@ -78,15 +79,13 @@ class App extends Component {
     };
 
     render() {
-        const { jobs, jobsFound, searchHints, searchKeyword} = this.state;
-        const pattern = new RegExp(searchKeyword, 'gi');
-        console.log(searchHints);
+        const { jobs, jobsFound, searchHints} = this.state;
+        const pattern = new RegExp(this.searchKeyword, 'gi');
         return (
             <div className="App">
                 <input ref={(input) => this.searchInput = input } onKeyPress={this.type} onChange={this.change} type="text"/>
                 {searchHints.map((hint, i) => {
-                        {/*return <div key={i}>{hint.type}: {hint.keyword.replace(pattern,"<strong>" + searchKeyword + "</strong>")}</div>*/}
-                        return <div key={i}>{hint.type}: {hint.keyword}</div>
+                        return <div key={i} dangerouslySetInnerHTML={{__html: hint.type + ': ' + hint.keyword.replace(pattern,"<strong>" + this.searchKeyword + "</strong>")} } />
                 })}
 
                 <h1>{jobsFound}</h1>
