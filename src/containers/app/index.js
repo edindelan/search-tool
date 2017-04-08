@@ -1,0 +1,46 @@
+import React, {Component} from 'react';
+import Hints from '../../components/hints';
+import Search from '../../components/search'
+import jobsData from '../../data/jobs';
+import SearchList from "../../components/searchList";
+import Stats from "../../components/stats";
+import './styles.css';
+
+class App extends Component {
+    state = {
+        jobs: jobsData,
+        jobsFound: jobsData.length,
+        searchHints: []
+    };
+
+    onHintStateChange = id => {
+        const { searchHints } = this.state;
+        const updatedSearchHints = searchHints.map(hint => hint.id === id ? {...hint, selected: !hint.selected} : hint);
+        this.setState({searchHints: updatedSearchHints});
+    };
+
+    render() {
+        const { jobs, jobsFound, searchHints} = this.state;
+        return (
+            <div className="App">
+                <Hints
+                    searchHints={searchHints}
+                    filter={true}
+                    searchKeyword={this.searchKeyword}
+                    onHintStateChange={this.onHintStateChange}
+                />
+                <Search data={jobs}/>
+                <Hints
+                    searchHints={searchHints}
+                    searchKeyword={this.searchKeyword}
+                    onHintStateChange={this.onHintStateChange}
+                />
+                <Stats jobsFound={jobsFound}/>
+                <SearchList data={jobs}/>
+            </div>
+        );
+    }
+}
+
+export default App;
+

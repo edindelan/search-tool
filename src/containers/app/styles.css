@@ -1,0 +1,10 @@
+.App {
+    text-align: center;
+}
+
+.jobs-count {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    font-size: 40px;
+}
