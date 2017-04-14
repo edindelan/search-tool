@@ -75,7 +75,7 @@ export default class Search extends Component {
 
         filtered.length
             ? onSearchStateChange(filtered, filtered.length)
-            : onSearchStateChange(null, 0);
+            : onSearchStateChange([], 0);
     };
 
     render() {
